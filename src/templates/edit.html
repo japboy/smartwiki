@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ja-JP" dir="ltr">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="rights-standard" content="cc by-sa">
+
+    <title>{{ page.name }} (Edit mode) - {{ application_name }}</title>
+
+    <link rel="author" href="http://twitter.com/japboy" title="Yu I.">
+    <link rel="stylesheet" type="text/css"
+     href="http://yui.yahooapis.com/3.3.0/build/cssreset/reset-min.css">
+
+    <style type="text/css">
+      * {
+        box-sizing: content-box;
+      }
+      body {
+        padding: 5%;
+      }
+      header {
+        margin-bottom: 3em;
+      }
+      article {
+        padding-right: 1%;
+        float: left;
+        width: 79%;
+      }
+      article textarea {
+        width: 90%;
+        font-family: "IPAGothic", "Osaka-Mono", "MS Gothic", monospace;
+      }
+      nav {
+        padding: 1%;
+        border-radius: 5px;
+        float: left;
+        width: 18%;
+        background-color: rgb(240,240,240);
+      }
+      br.clear {
+        clear: both;
+      }
+      footer {
+        margin-top: 3em;
+        clear: both;
+      }
+      h1 {
+        line-height: 160%;
+        font-size: 200%;
+      }
+      p {
+        margin-bottom: 1em;
+      }
+      ul {
+        margin-bottom: 1em;
+      }
+      ul li {
+        margin-left: 1.5em;
+        list-style-type: disc;
+      }
+      .message {
+        display: none;
+      }
+      .message.warn {
+        border-bottom: 1px solid rgb(180,180,180);
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 39px;
+        background-color: rgb(220,220,220);
+        font-family: sans-serif;
+        font-size: 18px;
+      }
+      .message.warn p {
+        padding: 5px;
+        text-align: center;
+      }
+    </style>
+
+    <script type="text/javascript" charset="UTF-8"
+     src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js">
+    </script>
+    <script type="text/javascript">
+      $(function () {
+          $('.message.warn').slideDown(400); // will change `display: block`
+      });
+    </script>
+  </head>
+
+  <body>
+    <header>
+      <h1><a href="/">{{ application_name }}</a></h1>
+
+      <p>
+        <input type="button" value="新しいページ" onclick="location.href='/%E6%96%B0%E3%81%97%E3%81%84%E3%83%9A%E3%83%BC%E3%82%B8?mode=edit'">
+      </p>
+
+      <section class="message {{ message.type }}">
+      <p>{{ message.text }}</p>
+      </section>
+    </header>
+
+    <article>
+      <form action="{{ page.edit_url }}" method="post">
+        <h1>
+          <input type="text" name="name" value="{{ page.name }}">
+          (Edit mode)
+        </h1>
+
+        <section>
+        <textarea rows="10" cols="50" name="content">{{ page.entity.content }}
+          {{ messages }}</textarea>
+        </section>
+
+        <input type="hidden" name="format" value="markdown-extra">
+        <input type="submit" value="保存">
+        <input type="button" value="エントリを削除" onclick="location.href='{{ page.remove_url }}'">
+        <input type="button" value="キャンセル" onclick="location.href='{{ page.view_url }}'">
+      </form>
+    </article>
+
+    <nav>
+    <ul>
+    {% for entry in page.get_entries %}
+      <li><a href="/{{ entry.name }}">{{ entry.name }}</a></li>
+    {% endfor %}
+    </ul>
+    </nav>
+
+    <br class="clear">
+
+    <footer>
+      {% if page.entity.modified %}
+      <p>作成日 @ {{ page.entity.created|date:"Y\年 m\月 j\日 P" }}</p>
+      <p>更新日 @ {{ page.entity.modified|date:"Y\年 m\月 j\日 P" }}</p>
+      {% endif %}
+    </footer>
+  </body>
+</html>

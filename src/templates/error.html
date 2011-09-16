@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ja-JP" dir="ltr">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="rights-standard" content="cc by-sa">
+
+    <title>Error - {{ application_name }}</title>
+
+    <link rel="author" href="http://twitter.com/japboy" title="Yu I.">
+    <link rel="stylesheet" type="text/css"
+     href="http://yui.yahooapis.com/3.3.0/build/cssreset/reset-min.css">
+
+    <style type="text/css">
+      body {
+        padding: 50px;
+      }
+      header {
+        margin-bottom: 3em;
+      }
+      article {}
+      footer {
+        margin-top: 3em;
+      }
+      article textarea {
+        width: 100%;
+      }
+      h1 {
+        line-height: 160%;
+        font-size: 200%;
+      }
+      strong {
+        font-weight: bolder;
+      }
+      em {
+        font-style: oblique;
+      }
+      .message {
+        display: none;
+      }
+      .message.warn {
+        border-bottom: 1px solid rgb(180,180,180);
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 39px;
+        background-color: rgb(220,220,220);
+        font-family: sans-serif;
+        font-size: 18px;
+      }
+      .message.warn p {
+        padding: 5px;
+        text-align: center;
+      }
+    </style>
+
+    <script type="text/javascript" charset="UTF-8"
+     src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js">
+    </script>
+    <script type="text/javascript">
+      $(function () {
+          $('.message.warn').slideDown(400); // will change `display: block`
+          setTimeout(function() {
+            location.href = '/';
+          }, 1500);
+      });
+    </script>
+  </head>
+
+  <body>
+    <header>
+      <h1><a href="/">{{ application_name }}</a></h1>
+
+      <section class="message {{ message.type }}">
+      <p>{{ message.text }}</p>
+      </section>
+    </header>
+
+    <article>
+      <p><a href="/">メインページに戻る</a></p>
+    </article>
+
+    <footer>
+    </footer>
+  </body>
+</html>

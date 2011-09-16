@@ -1,0 +1,8 @@
+application: driwak
+version: 0-1-alpha
+runtime: python
+api_version: 1
+
+handlers:
+- url: /.*
+  script: controller.py

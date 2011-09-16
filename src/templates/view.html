@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="ja-JP" dir="ltr">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="rights-standard" content="cc by-sa">
+
+    <title>{{ page.name }} - {{ application_name }}</title>
+
+    <link rel="author" href="http://twitter.com/japboy" title="Yu I.">
+    <link rel="stylesheet" type="text/css"
+     href="http://yui.yahooapis.com/3.3.0/build/cssreset/reset-min.css">
+
+    <style type="text/css">
+      * {
+        box-sizing: content-box;
+      }
+      body {
+        padding: 5%;
+      }
+      header {
+        margin-bottom: 3em;
+      }
+      article {
+        padding-right: 1%;
+        float: left;
+        width: 79%;
+      }
+      nav {
+        padding: 1%;
+        border-radius: 5px;
+        float: left;
+        width: 18%;
+        background-color: rgb(240,240,240);
+      }
+      br.clear {
+        clear: both;
+      }
+      footer {
+        margin-top: 3em;
+      }
+      h1 {
+        line-height: 160%;
+        font-family: sans-serif;
+        font-size: 200%;
+      }
+      h2 {
+        margin-top: 1em;
+        margin-bottom: 1em;
+        padding-left: 0.5em;
+        border-left: 0.5em solid rgb(0,0,0);
+        line-height: 100%;
+        font-family: sans-serif;
+        font-size: 160%;
+      }
+      h3 {
+        line-height: 160%;
+        font-size: 120%;
+      }
+      p {
+        margin-bottom: 1em;
+      }
+      pre {
+        margin-top: 1em;
+        margin-bottom: 1em;
+        margin-left: 1em;
+        padding: 1em;
+        background-color: rgb(240,240,240);
+      }
+      dl {
+        margin-top: 1em;
+        margin-bottom: 1em;
+        padding-top: 0.5em;
+        padding-bottom: 0.5em;
+        border-top: 1px dashed rgb(100,100,100);
+        border-bottom: 1px dashed rgb(100,100,100);
+      }
+      dl dt {
+        font-family: sans-serif;
+      }
+      dl dd {
+        margin-left: 1.5em;
+        padding-left: 0.5em;
+        border-left: 1px solid rgb(0,0,0);
+      }
+      ul {
+        margin-bottom: 1em;
+      }
+      ul li {
+        margin-left: 1.5em;
+        list-style-type: disc;
+      }
+      ol li {
+        margin-left: 1.5em;
+        list-style-type: decimal;
+      }
+      table {
+        margin-top: 1em;
+        margin-bottom: 1em;
+        border-collapse: separate;
+        border-spacing: 1px;
+        background-color: rgb(100,100,100);
+      }
+      table tr th {
+        padding: 0.25em;
+        background-color: rgb(200,200,200);
+        font-family: sans-serif;
+      }
+      table tr td {
+        padding: 0.25em;
+        background-color: rgb(240,240,240);
+      }
+      abbr {
+        border-bottom: 1px dashed rgb(0,0,0);
+      }
+      em {
+        font-style: oblique;
+      }
+      strong {
+        font-weight: bolder;
+      }
+      .message {
+        display: none;
+      }
+      .message.warn {
+        border-bottom: 1px solid rgb(180,180,180);
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 39px;
+        background-color: rgb(220,220,220);
+        font-family: sans-serif;
+        font-size: 18px;
+      }
+      .message.warn p {
+        padding: 5px;
+        text-align: center;
+      }
+    </style>
+
+    <script type="text/javascript" charset="UTF-8"
+     src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js">
+    </script>
+    <script type="text/javascript">
+      $(function () {
+          $('.message.warn').slideDown(400); // will change `display: block`
+      });
+    </script>
+  </head>
+
+  <body>
+    <header>
+      <h1><a href="/">{{ application_name }}</a></h1>
+
+      <p>
+        <input type="button" value="新しいページ" onclick="location.href='/%E6%96%B0%E3%81%97%E3%81%84%E3%83%9A%E3%83%BC%E3%82%B8?mode=edit'">
+        <input type="button" value="このページを編集" onclick="location.href='{{ page.edit_url }}'">
+      </p>
+      <section class="message {{ message.type }}">
+      <p>{{ message.text }}</p>
+      </section>
+    </header>
+
+    <article>
+      <h1>{{ page.name }}</h1>
+
+      <section>
+        {{ page.wikified_content|safe }}
+      </section>
+    </article>
+
+    <nav>
+    <ul>
+    {% for entry in page.get_entries %}
+      <li><a href="/{{ entry.name }}">{{ entry.name }}</a></li>
+    {% endfor %}
+    </ul>
+    </nav>
+
+    <br class="clear">
+
+    <footer>
+      {% if page.entity.modified %}
+      <p>作成日 @ {{ page.entity.created|date:"Y\年 m\月 j\日 P" }}</p>
+      <p>更新日 @ {{ page.entity.modified|date:"Y\年 m\月 j\日 P" }}</p>
+      {% endif %}
+    </footer>
+  </body>
+</html>
