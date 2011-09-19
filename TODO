@@ -21,6 +21,8 @@ Milestone 0.1.1
 [ ] Fix odd behaviours
     [ ] Fix redirecting `favicon.ico` to `favicon.ico?mode=edit`
     [ ] Fix link address to proper quoted address in list menu of entries
+    [ ] Fix auto keyword links like `MarkdownExtra` and `Markdown`
+[ ] Add auto keyword link implementation with case insensitive
 [x] Change template engine to Genshi
     [x] Assign another way to unescape content
 
