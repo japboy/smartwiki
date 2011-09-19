@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/2000/xmlns"
+      xmlns:py="http://genshi.edgewall.org/"
+      xml:lang="ja-JP"
+      dir="ltr">
+  <head>
+    <meta charset="UTF-8"/>
+
+    <title></title>
+  </head>
+
+  <body>
+    <header>
+      <h1></h1>
+    </header>
+
+    <article>
+      <p>テスト。</p>
+    </article>
+
+    <footer>
+      <ul py:if="values">
+        <li py:for="value in values">$value</li>
+      </ul>
+    </footer>
+  </body>
+</html>

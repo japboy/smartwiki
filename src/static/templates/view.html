@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/2000/xmlns"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/"
+      xml:lang="ja-JP"
+      dir="ltr">
+  <xi:include href="./foundation.html"/>
+  <head>
+    <title>${page.name} - ${application_name}</title>
+  </head>
+
+  <body>
+    <header>
+      <h1><a href="/">${application_name}</a></h1>
+
+      <section class="message ${message.type}" py:if="message">
+        <p>${message.text}</p>
+      </section>
+    </header>
+
+    <nav id="view"/>
+
+    <article>
+      <h1>${page.name}</h1>
+
+      <section>
+        ${page.content}
+      </section>
+    </article>
+
+    <aside/>
+
+    <br class="clear"/>
+
+    <footer/>
+  </body>
+</html>

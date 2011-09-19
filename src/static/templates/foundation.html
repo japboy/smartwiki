@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/2000/xmlns"
+      xmlns:py="http://genshi.edgewall.org/"
+      xml:lang="ja-JP"
+      dir="ltr"
+      py:strip="True">
+  <py:match path="head" once="true">
+  <head py:attrs="select('@*')">
+    <meta charset="UTF-8"/>
+    <meta name="rights-standard" content="cc by-sa"/>
+
+    <title py:with="title = list(select('title/text()'))">
+      <py:if test="title">${title}</py:if>
+    </title>
+
+    <link rel="author" href="http://twitter.com/japboy" title="Yu I."/>
+    <link rel="stylesheet" type="text/css"
+     href="http://yui.yahooapis.com/3.3.0/build/cssreset/reset-min.css"/>
+
+    <style type="text/css">
+      /* Foundation */
+      * {
+        box-sizing: content-box;
+      }
+      h1 {
+        line-height: 160%;
+        font-family: sans-serif;
+        font-size: 200%;
+      }
+      h2 {
+        margin-top: 1em;
+        margin-bottom: 1em;
+        padding-left: 0.5em;
+        border-left: 0.5em solid rgb(0,0,0);
+        line-height: 100%;
+        font-family: sans-serif;
+        font-size: 160%;
+      }
+      h3 {
+        line-height: 160%;
+        font-size: 120%;
+      }
+      p {
+        margin-bottom: 1em;
+      }
+      pre {
+        margin-top: 1em;
+        margin-bottom: 1em;
+        margin-left: 1em;
+        padding: 1em;
+        background-color: rgb(240,240,240);
+      }
+      dl {
+        margin-top: 1em;
+        margin-bottom: 1em;
+        padding-top: 0.5em;
+        padding-bottom: 0.5em;
+        border-top: 1px dashed rgb(100,100,100);
+        border-bottom: 1px dashed rgb(100,100,100);
+      }
+      dl dt {
+        font-family: sans-serif;
+      }
+      dl dd {
+        margin-left: 1.5em;
+        padding-left: 0.5em;
+        border-left: 1px solid rgb(0,0,0);
+      }
+      ul {
+        margin-bottom: 1em;
+      }
+      ul li {
+        margin-left: 1.5em;
+        list-style-type: disc;
+      }
+      ol li {
+        margin-left: 1.5em;
+        list-style-type: decimal;
+      }
+      table {
+        margin-top: 1em;
+        margin-bottom: 1em;
+        border-collapse: separate;
+        border-spacing: 1px;
+        background-color: rgb(100,100,100);
+      }
+      table tr th {
+        padding: 0.25em;
+        background-color: rgb(200,200,200);
+        font-family: sans-serif;
+      }
+      table tr td {
+        padding: 0.25em;
+        background-color: rgb(240,240,240);
+      }
+      abbr {
+        border-bottom: 1px dashed rgb(0,0,0);
+      }
+      em {
+        font-style: oblique;
+      }
+      strong {
+        font-weight: bolder;
+      }
+
+      /* Layout */
+      body {
+        padding: 5%;
+      }
+      header {
+        margin-bottom: 3em;
+      }
+      nav {}
+      nav li {
+        margin-left: 0;
+        padding-left: 0;
+        display: inline;
+        list-style-type: none;
+      }
+      nav li:before {
+        content: '\2713';
+      }
+      article {
+        padding-right: 1%;
+        float: left;
+        width: 79%;
+      }
+      article textarea {
+        padding: 0.25em;
+        width: 90%;
+        height: 30em;
+        font-family: "Osaka-Mono", "MS Gothic", monospace;
+        font-size: 120%;
+      }
+      aside {
+        padding: 1%;
+        border-radius: 5px;
+        float: left;
+        width: 18%;
+        background-color: rgb(240,240,240);
+      }
+      br.clear {
+        clear: both;
+      }
+      footer {
+        margin-top: 3em;
+      }
+
+      .message {
+        display: none;
+      }
+      .message.warn {
+        border-bottom: 1px solid rgb(180,180,180);
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 39px;
+        background-color: rgb(220,220,220);
+        font-family: sans-serif;
+        font-size: 18px;
+      }
+      .message.warn p {
+        padding: 5px;
+        text-align: center;
+      }
+
+    </style>
+
+    <script type="text/javascript" charset="UTF-8"
+     src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js">
+    </script>
+    <script type="text/javascript">
+      $(function () {
+          $('.message.warn').slideDown(400); // will change `display: block`
+      });
+    </script>
+  </head>
+  </py:match>
+
+  <body py:strip="True">
+
+    <py:match path="nav[@id='edit']" once="true">
+    <nav py:attrs="select('@*')">
+      <ul>
+        <li><a href="${page.path.newpage}">新しいページ</a></li>
+      </ul>
+    </nav>
+    </py:match>
+    <py:match path="nav[@id='view']" once="true">
+    <nav py:attrs="select('@*')">
+      <ul>
+        <li><a href="${page.path.newpage}">新しいページ</a></li>
+        <li><a href="${page.path.edit}">このページを編集</a></li>
+      </ul>
+    </nav>
+    </py:match>
+
+    <article/>
+
+    <py:match path="aside" once="true">
+    <aside py:attrs="select('@*')">
+    <ul py:if="entries">
+      <li py:for="entry in entries">
+        <a href="/${entry.name}">${entry.name}</a>
+      </li>
+    </ul>
+    </aside>
+    </py:match>
+
+    <br class="clear"/>
+
+    <py:match path="footer" once="true">
+    <footer py:attrs="select('@*')">
+      <ul py:if="page.entity.modified">
+        <li>作成日 @ ${page.entity.created}</li>
+        <li>更新日 @ ${page.entity.modified}</li>
+      </ul>
+    </footer>
+    </py:match>
+  </body>
+</html>
