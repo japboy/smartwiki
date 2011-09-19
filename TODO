@@ -1,0 +1,30 @@
+Milestone 1.0.0
+===============
+[ ] Release distributable package
+
+Milestone 0.2.0
+===============
+[ ]
+
+Milestone 0.1.x
+===============
+[ ] Add Cookie based Session control implementation
+[ ] Add user login implementation based on Twitter accounts
+[ ] Add user based authority control to edit wiki entries
+    [ ] Remove authority for anonymous editors to delete entries
+    [ ] Add authority for login users to lock editing entries
+    [ ] Add authority for login users to write unescaped Markdown content
+
+Milestone 0.1.1
+===============
+[ ] Fix too many loads
+[ ] Fix odd behaviours
+    [ ] Fix redirecting `favicon.ico` to `favicon.ico?mode=edit`
+    [ ] Fix link address to proper quoted address in list menu of entries
+[x] Change template engine to Genshi
+    [x] Assign another way to unescape content
+
+Milestone 0.1.0
+===============
+* This is first and alpha release
+[x] Release first prototype product
