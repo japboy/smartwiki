@@ -1,30 +1,35 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Request handler module
+u"""Request handler module
 
 This is request handler. All of the application request will be handled here.
 """
 
 import os
-import urllib
-import urlparse
+import logging
 
-from google.appengine.dist import use_library
-use_library('django', '1.2')
 from google.appengine.ext import webapp
-from google.appengine.ext.webapp import template
 from google.appengine.ext.webapp.util import run_wsgi_app
 
+import template
 import transformer
 from page import Page
+from page import get_entries
 
-__author__ = 'Yu I.'
-__copyright__ = 'Copyright 2011, Yu Inao'
-__license__ = 'MIT License'
-__version__ = '0.1'
-__maintainer__ = 'Yu I.'
-__status__ = 'Experiment'
+__author__     = u'Yu I.'
+__copyright__  = u'Copyright 2011, Yu Inao'
+__credits__    = [u'None']
+__license__    = u'MIT License'
+__version__    = u'0.1.1'
+
+class MyError(Exception):
+    def __init__(self, value):
+        self.value = value
+
+    def __str__(self):
+        logging.warn(repr(self.value))
+        return
 
 class BaseRequestHandler(webapp.RequestHandler):
     """Abstraction for request handler
@@ -35,22 +40,22 @@ class BaseRequestHandler(webapp.RequestHandler):
         License: Apache License
     """
 
-    def generate(self, template_name, template_value={}):
+    def generate(self, template_name, **template_values):
         """Page generator method
 
         This method write out a page using Django template. Template HTMLs are
         read from `templates` sub directory.
         """
 
-        values = {'application_name': u'スマートウィキ',
-                  'user': None}
+        common_values = {'application_name': u'スマートウィキ',
+                         'user': None}
 
-        values.update(template_value)
+        if not template_values.has_key('message'):
+            template_values.update({'message': None})
 
-        directory = os.path.dirname(__file__)
-        path = os.path.join(directory, os.path.join('templates', template_name))
-
-        self.response.out.write(template.render(path, values))
+        template_values.update(common_values)
+        self.response.out.write(template.render(template_name,
+                                                **template_values))
 
 class WikiPage(BaseRequestHandler):
     """The request handler for all the requests
@@ -61,7 +66,7 @@ class WikiPage(BaseRequestHandler):
     `mode=edit` as well. POST method handles edit operations.
     """
 
-    def get(self, path_and_query):
+    def get(self, page_name):
         """Request GET handling method
 
         This method handles all the GET requests to wiki pages. The argument
@@ -69,14 +74,20 @@ class WikiPage(BaseRequestHandler):
         object and is quoted and encoded as UTF-8.
         """
 
-        if not path_and_query:
+        query_string = self.request.query_string
+
+        try:
+            queries = \
+                dict(item.split(u'=') for item in query_string.split(u'&'))
+        except ValueError, e:
+            logging.warn(e)
+
+        if not page_name:
             page_name = u'メインページ'
             self.redirect(u'/' + transformer.quote(page_name))
             return
 
-        url = urlparse.urlparse(path_and_query)
-        page_name = url.path
-        page_exists = Page.hasentry(page_name)
+        page = Page.load(page_name)
         mode = self.request.get('mode')
         action = self.request.get('action')
         responses = {}
@@ -88,28 +99,26 @@ class WikiPage(BaseRequestHandler):
                                                  u'メインページに戻ります。'}})
 
             self.error(400)
-        elif not page_exists and not mode:
+        elif not page.exists() and not mode:
             self.redirect(u'/' + page_name + u'?mode=edit')
             return
-        elif not page_exists and mode:
+        elif not page.exists() and mode:
             responses.update({'message': {'type': u'warn',
                                           'text': u'“' + \
                                             transformer.unquote(page_name) + \
                               u'”はありません。あなたが最初の投稿者です。'}})
-        elif page_exists and not mode:
+        elif page.exists() and not mode:
             mode = u'view'
-        elif page_exists and mode == 'edit' and action == 'remove':
+        elif page.exists() and mode == 'edit' and action == 'remove':
             self.delete(page_name)
             responses.update({'message': {'type': u'warn',
                                           'text': u'“' + \
                                             transformer.unquote(page_name) + \
                               u'”を削除しました。作り直すこともできます。'}})
 
-        page = Page.load(page_name)
+        responses.update({'page': page, 'entries': get_entries()})
 
-        responses.update({'page': page})
-
-        self.generate(mode + u'.html', responses)
+        self.generate(mode + u'.html', **responses)
 
     def post(self, page_name):
         """Request POST handling method
@@ -121,11 +130,11 @@ class WikiPage(BaseRequestHandler):
         page = Page.load(page_name)
 
         page.name = self.request.get('name')
-        page.post_content = self.request.get('content')
-        page.post_format = self.request.get('format')
+        page.post_requests[u'content'] = self.request.get('content')
+        page.post_requests[u'format'] = self.request.get('format')
 
         page.save()
-        self.redirect(page.view_url())
+        self.redirect(page.path[u'view'])
 
     def delete(self, page_name):
         """Request DELETE handling method"""
@@ -135,7 +144,7 @@ class WikiPage(BaseRequestHandler):
         page.remove()
 
 def main():
-    application = webapp.WSGIApplication([(r'/(.*)#?', WikiPage)],
+    application = webapp.WSGIApplication([(r'/(.*)[/#]?', WikiPage)],
                                          debug=True)
 
     run_wsgi_app(application)

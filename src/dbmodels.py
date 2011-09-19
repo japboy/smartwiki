@@ -1,19 +1,18 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Datastore model module
+u"""Datastore model module
 
 This contains Datastore models for wiki entries.
 """
 
 from google.appengine.ext import db
 
-__author__ = 'Yu I.'
-__copyright__ = 'Copyright 2011, Yu Inao'
-__license__ = 'MIT License'
-__version__ = '0.1'
-__maintainer__ = 'Yu I.'
-__status__ = 'Experiment'
+__author__     = u'Yu I.'
+__copyright__  = u'Copyright 2011, Yu Inao'
+__credits__    = [u'None']
+__license__    = u'MIT License'
+__version__    = u'0.1.1'
 
 class WikiEntries(db.Model):
     """Basic wiki entry model

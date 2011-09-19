@@ -1,25 +1,38 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Page handling module
+u"""Page handling module
 
 This is my basic template to start writing Python codes. This is now almost
 based on Rob Knight's Python Coding Guidelines. In addition respective PEP 8.
 """
 
 import datetime
+import logging
 
-from google.appengine.ext import db
-
+import template
 import transformer
 from dbmodels import WikiEntries
 
-__author__ = 'Yu I.'
-__copyright__ = 'Copyright 2011, Yu Inao'
-__license__ = 'MIT License'
-__version__ = '0.1'
-__maintainer__ = 'Yu I.'
-__status__ = 'Experiment'
+__author__     = u'Yu I.'
+__copyright__  = u'Copyright 2011, Yu Inao'
+__credits__    = [u'None']
+__license__    = u'MIT License'
+__version__    = u'0.1.1'
+
+def get_entries():
+    query = WikiEntries.all()
+
+    query.order('-modified')
+
+    return query.fetch(query.count())
+
+class MyError(Exception):
+    def __init__(self, value):
+        self.value = value
+
+    def __str__(self):
+        return repr(self.value)
 
 class Page(object):
     """Abstraction for a wiki page
@@ -31,43 +44,48 @@ class Page(object):
 
     def __init__(self, name, entity=None):
         self.name = transformer.unquote(name)
-        self.post_content = u''
-        self.post_format = u''
-        self.wikified_content = u''
+        self.post_requests = {u'content': u'', u'format': u''}
+        self.path = {u'view': '/' + transformer.quote(self.name),
+                     u'edit': '/' + transformer.quote(self.name) + '?mode=edit',
+                     u'remove':
+                '/' + transformer.quote(self.name) + '?mode=edit&action=remove',
+                     u'newpage':
+                  '/' + transformer.quote(u'新しいページ') + '?mode=edit'}
 
         if entity:
+            self.existence = True
             self.entity = entity
             self.name = self.entity.name
-            self.wikified_content = \
-                transformer.markdownize(self.wikify_content())
+            self.content = template.unescape(self.wikify_content())
         else:
+            self.existence = False
             self.entity = \
-                WikiEntries(content=u'Write down new wiki entry here.')
+                WikiEntries(content=u'新しい wiki エントリーを書いて下さい。')
 
-    def view_url(self):
-        return '/' + transformer.quote(self.name)
-
-    def edit_url(self):
-        return '/' + transformer.quote(self.name) + '?mode=edit'
-
-    def remove_url(self):
-        return '/' + transformer.quote(self.name) + '?mode=edit&action=remove'
-
-    def get_entries(self):
+    @staticmethod
+    def load(name):
+        normalized_name = transformer.normalize(name)
         query = WikiEntries.all()
 
-        query.order('-modified')
+        query.filter(u'name_normalized =', normalized_name).order(u'-modified')
 
-        return query.fetch(query.count())
+        entity = query.get()
 
-    def wikify_content(self):
-        transforms = [transformer.WikiWords(), transformer.AutoLink()]
-        content = self.entity.content
+        if entity:
+            page = Page(name, entity)
+        else:
+            page = Page(name)
 
-        for transform in transforms:
-            content = transform.run(content)
+        return page
 
-        return content
+    def exists(self):
+        return self.existence
+
+    def remove(self):
+        try:
+            self.entity.delete()
+        except NotSavedError:
+            logging.warn(u'Non existed entry is requested to remove.')
 
     def save(self):
         now = datetime.datetime.now()
@@ -75,44 +93,22 @@ class Page(object):
         if not self.entity.created:
             self.entity.created = now
 
-        self.entity.content = self.post_content
-        self.entity.format = self.post_format
+        self.entity.content = self.post_requests[u'content']
+        self.entity.format = self.post_requests[u'format']
         self.entity.modified = now
         self.entity.name = self.name
-        self.entity.name_normalized = self.name.replace(' ', '+').lower()
+        self.entity.name_normalized = transformer.normalize(self.name)
 
         self.entity.put()
 
-    def remove(self):
-        self.entity.delete()
+    def wikify_content(self):
+        transforms = [transformer.AutoLink()]
+        content = self.entity.content
 
-    @staticmethod
-    def load(name):
-        normalized_name = transformer.normalize(name)
-        query = WikiEntries.all()
+        for transform in transforms:
+            content = transform.run(content)
 
-        query.filter('name_normalized =', normalized_name).order('-modified')
-
-        entity = query.get()
-        page = Page(name, entity)
-
-        if not entity:
-            page = Page(name)
-
-        return page
-
-    @staticmethod
-    def hasentry(name):
-        flag = False
-        normalized_name = transformer.normalize(name)
-        query = WikiEntries.all()
-
-        query.filter('name_normalized =', normalized_name)
-
-        if query.count() >= 1:
-            flag = True
-
-        return flag
+        return transformer.markdownize(transformer.linkfy_keyword(content))
 
 if __name__ == '__main__':
     pass

@@ -1,23 +1,25 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Transformer module
+u"""Transformer module
 
 This module include some tools for wiki entry conversion.
 """
 
+import logging
 import re
 import urllib
 
 import markdown
-import page
 
-__author__ = 'Yu I.'
-__copyright__ = 'Copyright 2011, Yu Inao'
-__license__ = 'MIT License'
-__version__ = '0.1'
-__maintainer__ = 'Yu I.'
-__status__ = 'Experiment'
+import page
+from dbmodels import WikiEntries
+
+__author__     = u'Yu I.'
+__copyright__  = u'Copyright 2011, Yu Inao'
+__credits__    = [u'None']
+__license__    = u'MIT License'
+__version__    = u'0.1.1'
 
 def quote(path):
     encoded = path.encode('utf-8')
@@ -35,17 +37,29 @@ def unquote(path):
 def normalize(path):
     unquoted = unquote(path)
 
-    return unquoted.replace(' ', '+').lower()
+    return unquoted.replace(u' ', u'+').lower()
 
 def isvalid(path):
-    flag = False
-    pattern = re.compile(r'[\s!#&,./:=?_]+')
+    pattern = re.compile(r'[^!#&+,./:=?_\s][^!#&,./:=?]+', re.UNICODE)
     matched = pattern.match(unquote(path))
 
-    if not matched:
+    if matched:
         flag = True
+    else:
+        flag = False
 
     return flag
+
+def linkfy_keyword(text):
+    query = WikiEntries().all()
+    entities = query.fetch(query.count())
+    keywords = list(set([entity.name for entity in entities]))
+
+    for keyword in keywords:
+        text = text.replace(keyword,
+                            u'<a href="/%s">%s</a>' % (quote(keyword), keyword))
+
+    return text
 
 def markdownize(text):
     md = markdown.Markdown(extensions=['extra'],
@@ -67,21 +81,9 @@ class Transform(object):
         parts.append(content[offset:])
         return ''.join(parts)
 
-class WikiWords(Transform):
-    def __init__(self):
-        self.regexp = re.compile(u'([^\s][A-Za-z0-9ぁ-ヶ亜-黑]+[^\s])', re.UNICODE)
-
-    def replace(self, match):
-        wikiword = match.group(1)
-
-        if page.Page.hasentry(quote(wikiword)):
-            return u'<a href="/%s">%s</a>' % (wikiword, wikiword)
-        else:
-            return wikiword
-
 class AutoLink(Transform):
     def __init__(self):
-        self.regexp = re.compile(u'(.*)(https?:\/\/[A-Za-z0-9\/\.][^\s]+)',
+        self.regexp = re.compile(r'(.*)([^(]https?:\/\/[A-Za-z0-9\/\.[^\s)]]+)',
                                  re.UNICODE)
 
     def replace(self, match):
